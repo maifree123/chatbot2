@@ -38,7 +38,9 @@
    git clonehttps://github.com/maifree123/chatbot2
    cd chatbot2
 # 2. 安装依赖
-pnpm install  # 推荐使用 pnpm
+```bash
+npm install  # 推荐使用 pnpm
 
 # 3. 配置环境变量
+```bash
 cp .env.example .env
