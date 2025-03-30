@@ -45,4 +45,4 @@ npm install
 
 ###  3. 配置环境变量
 ```bash
-cp .env.example .env
+cd .env
