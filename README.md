@@ -41,7 +41,7 @@
 ### 2. 安装依赖
 1. 安装依赖：
    ```bash
-npm install  
+   npm install  
 
 ###  3. 配置环境变量
 ```bash
