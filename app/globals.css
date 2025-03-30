@@ -1,21 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  font-family: Arial, 'Inter', Helvetica, sans-serif
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 0 0% 100%; /* 白色 */
+    --foreground: 0 0% 10%;  /* 深灰色 */
+    --card: 0 0% 98%;        /* 浅灰色 */
+    --card-foreground: 0 0% 15%;
+    --popover: 0 0% 95%;
+    --popover-foreground: 0 0% 20%;
+    --primary:  0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:  0 0% 90%; 
+    --secondary-foreground: 0 0% 15%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 210 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 80%;
+    --input: 0 0% 90%;
+    --ring: 210 100% 50%;
+    --radius: 0.5rem;
+    --chart-1: 210 100% 50%;
+    --chart-2: 120 100% 50%;
+    --chart-3: 30 100% 50%;
+    --chart-4: 300 100% 50%;
+    --chart-5: 60 100% 50%;
+  }
+  
+  .dark {
+    --background: 0 0% 10%;  /* 深灰色 */
+    --foreground: 0 0% 90%;  /* 浅灰色 */
+    --card: 0 0% 15%;        /* 深灰色 */
+    --card-foreground: 0 0% 90%;
+    --popover: 0 0% 20%;
+    --popover-foreground: 0 0% 90%;
+    --primary: 0 0% 90%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 80%;
+    --accent: 210 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 210 100% 50%;
+    --chart-1: 210 100% 50%;
+    --chart-2: 120 100% 50%;
+    --chart-3: 30 100% 50%;
+    --chart-4: 300 100% 50%;
+    --chart-5: 60 100% 50%;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  /* 通用滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* 滚动条轨道 */
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background)/0.8);
+    border-radius: var(--radius);
+  }
+
+  /* 滚动条滑块 */
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary)/0.6);
+    border-radius: var(--radius);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary)/0.8);
+  }
+
+  /* 暗黑模式滚动条 */
+  .dark textarea::-webkit-scrollbar {
+    background: hsla(var(--input), 0.2); /* 20% 透明度 */
+  }
+
+  /* 暗黑模式调整 */
+  .dark ::-webkit-scrollbar-track {
+    background: hsl(var(--background)/0.5);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary)/0.4);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary)/0.6);
+  }
+  
+  /* Firefox 滚动条 */
+  textarea {
+    scrollbar-width: thin;
+    scrollbar-color: linear-gradient(
+      45deg,
+      hsla(var(--primary), 0.8),
+      hsla(var(--accent), 0.8)
+    ) hsla(var(--input), 0.3);
+  }
+
+  .dark textarea {
+    scrollbar-color: linear-gradient(
+      45deg,
+      hsla(var(--primary), 0.8),
+      hsla(var(--accent), 0.8)
+    ) hsla(var(--input), 0.2);
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {  
+  textarea {  
+    transition: height 0.2s ease-out;  
+    scroll-padding-bottom: 3.5rem;
+    
+    /* 强制覆盖滚动条样式 */
+    &::-webkit-scrollbar {
+      width: 8px !important;
+      background: hsl(var(--input)/0.4) !important;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: hsl(var(--primary)/0.5) !important;
+      border-radius: var(--radius);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    .dark &::-webkit-scrollbar {
+      background: hsl(var(--input)/0.3) !important;
+    }
+    
+    .dark &::-webkit-scrollbar-thumb {
+      background: hsl(var(--primary)/0.4) !important;
+    }
+  }
+  .theme-scrollbar {
+    /* Firefox 支持 */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary)/0.5) hsl(var(--input)/0.4);
+  }
+  
+  .dark .theme-scrollbar {
+    scrollbar-color: hsl(var(--primary)/0.4) hsl(var(--input)/0.3);
+  }
+  
+  /* Webkit 浏览器支持 */
+  .theme-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    background: hsl(var(--input)/0.4);
+  }
+  
+  .theme-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary)/0.5);
+    border-radius: var(--radius);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  .dark .theme-scrollbar::-webkit-scrollbar {
+    background: hsl(var(--input)/0.3);
+  }
+  
+  .dark .theme-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary)/0.4);
+  }
+
+  .dark textarea::-webkit-scrollbar {
+    background: hsl(var(--input)/0.3) !important;
+  }
+
+  .centered-bubble {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  @layer utilities {
+    .text-contrast {
+      @apply text-black transition-colors duration-300 dark:text-white;
+    }
+  }
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  /* Tooltip text (this will be hidden by default) */
+  .tooltip .tooltip-text {
+    visibility: hidden;
+    height: 30px;  /*高度*/
+    width: 70px;  /* 设置你想要的宽度 */
+    background-color: #1b1b1b;
+    color: #fff;
+    text-align: center;
+    border-radius: 10px;
+    padding: 12px 16px;
+    position: absolute;
+    z-index: 1;
+    right: 100%;  /* 将右侧定位到按钮的左边 */
+    top: 50%;
+    margin-top: -15px; /* 垂直居中 */
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;  /* 使用 Flexbox */
+    justify-content: center;  /* 水平居中 */
+    align-items: center;  /* 垂直居中 */
+    font-weight: bold; /* 加粗字体 */
+  }
+
+/* Tooltip arrow */
+.tooltip .tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -9px; /* 箭头指向左边 */
+  margin-top: -5px;  /* 使箭头垂直居中 */
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent #1b1b1b; /* 改为左箭头 */
+}
+  
+  /* Show the tooltip when hovering */
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+  
 }

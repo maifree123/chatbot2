@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import QueryClientProvider from "@/QueryClientProvider";
+import ThemeProvider from "@/components/ThemeProvider"; // 新增：主题提供者
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider> {/* 新增：包裹主题提供者 */}
+          <QueryClientProvider>
+            {children}
+          </QueryClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
