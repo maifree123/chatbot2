@@ -1,5 +1,5 @@
 
-# 智能聊天应用 (Next.js)
+# 基于AISDK的RAGChatbot(Next.js)
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.0.0-black.svg)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0.0-blue.svg)](https://www.typescriptlang.org/)
@@ -12,7 +12,7 @@
 - **用户系统**：登录/注册/密码重置
 - **聊天管理**：创建/删除/重命名对话
 - **文件处理**：上传 PDF
-- **数据库**：PostgreSQL + Drizzle ORM
+- **数据库**：PostgreSQL（Supabase) + Drizzle ORM
 
 
 ## 🛠 技术栈
@@ -20,9 +20,8 @@
 - **前端**：Next.js 14 (App Router), Tailwind CSS
 - **后端**：Next.js API Routes
 - **数据库**：PostgreSQL + Drizzle ORM
-- **认证**：JWT + Cookie
-- **工具链**：TypeScript, ESLint, Prettier
-
+- **认证**：Header + Cookie
+- **工具链**：TypeScript
 ## 🚀 快速开始
 
 ### 环境要求
