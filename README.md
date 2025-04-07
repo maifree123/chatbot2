@@ -7,6 +7,8 @@
 
 基于 Next.js 的全栈聊天应用，支持用户认证、文件上传和实时对话。
 体验地址：http://10.23.57.104:3000
+![image](https://github.com/user-attachments/assets/7a59b068-5196-4d93-b0b3-c60ba45230a9)
+
 ## ✨ 核心功能
 
 - **用户系统**：登录/注册/密码重置
