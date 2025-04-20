@@ -6,7 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3.0-06B6D4.svg)](https://tailwindcss.com/)
 
 基于 Next.js 的全栈聊天应用，支持用户认证、文件上传和实时对话。
-体验地址：http://10.23.57.104:3000
+体验地址：http://10.23.94.236:3000
 ![image](https://github.com/user-attachments/assets/7a59b068-5196-4d93-b0b3-c60ba45230a9)
 
 ## ✨ 核心功能
