@@ -199,6 +199,17 @@ body {
     margin-left: auto;
     margin-right: auto;
   }
+  .tool-call-card {
+    @apply p-4 bg-muted rounded-lg border transition-colors;
+  }
+  
+  .tool-call-card:hover {
+    @apply bg-muted/80;
+  }
+  
+  .tool-result-pre {
+    @apply text-sm p-2 bg-background rounded max-h-64 overflow-auto;
+  }
   @layer utilities {
     .text-contrast {
       @apply text-black transition-colors duration-300 dark:text-white;

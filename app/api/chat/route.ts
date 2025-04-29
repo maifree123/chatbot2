@@ -7,6 +7,10 @@ import { appendResponseMessages } from 'ai'; // 新增导入
 import { saveChat } from '@/db/index'; // 确保chat-store工具存在
 import { createChat} from '@/db/index';
 import { getUserPreferences, getAllFileHashesFromDatabase } from '@/db/index'
+import { experimental_createMCPClient } from 'ai';
+import { Experimental_StdioMCPTransport as StdioMCPTransport } from 'ai/mcp-stdio';
+import { ToolSet, Tool } from 'ai'; // 从 ai 包中导入类型
+
 interface PineconeMatch {
   id: string;
   score?: number;
@@ -50,7 +54,7 @@ export async function POST(req: Request) {
   
   
   
-  let { messages, id, model, isNewChat, customSettings ,pdfContent = '', enableWebSearch = false, enableRAG = true } = await req.json();
+  let { messages, id, model, isNewChat, customSettings ,pdfContent = '', enableWebSearch = false, enableRAG = true, enableMCP= true} = await req.json();
   
   // 创建新聊天记录
   if (isNewChat && messages.length === 1) {
@@ -110,6 +114,7 @@ export async function POST(req: Request) {
   
   // 构建系统提示（包含PDF内容）
   const systemMessage = `
+    如果需要用到工具，必须使用fetch_markdown。
     ### 用户自定义设置
     称呼方式: ${customSettings?.preferredName || '用户'}
     交互特征: ${customSettings?.traits?.join(', ') || '标准模式'}
@@ -126,16 +131,55 @@ export async function POST(req: Request) {
    
   `;
     console.log(systemMessage);
- const result = streamText({
-    model: deepseek(model || 'deepseek-chat'),
-    system: systemMessage, 
-    messages,
-    experimental_generateMessageId: createIdGenerator({
-      prefix: 'msgs',
-      size: 16
-    }),
-    abortSignal: req.signal,
-    async onFinish({ response }) {
+
+    let mcpClient = null;
+    let mcpTools: ToolSet = {};
+    
+    if (enableMCP) {
+      mcpClient = await experimental_createMCPClient({
+        transport: new StdioMCPTransport({
+          command: 'node',
+          args: ['mcpserver/fetch-mcp-main/dist/index.js'],
+        }),
+      });
+    
+      const toolsMap = await mcpClient.tools();
+      // 直接把 toolsMap 的结构转换成正确的 ToolSet
+      mcpTools = Object.fromEntries(
+        Object.entries(toolsMap).map(([name, tool]) => [
+          name,
+          {
+            description: tool.description,
+            parameters: tool.parameters,
+            execute: tool.execute,
+          },
+        ])
+      );
+      console.log('Loaded MCP tools:', mcpTools);
+    }
+
+    const getProvider = (model: string) => {
+      if (model.startsWith('gpt-4o-mini')) return openai;
+      if (model.startsWith('deepseek')) return deepseek;
+      return deepseek; // 默认
+    };
+    
+    const provider = getProvider(model);
+    const result = streamText({
+      model: provider(model),
+      system: systemMessage,
+      messages,
+      tools: Object.values(mcpTools) as any,
+      maxSteps: 2,  
+      experimental_generateMessageId: createIdGenerator({ prefix: 'msgs', size: 16 }),
+      abortSignal: req.signal,
+      async onFinish({ response }) {
+        const toolMsg = response.messages.find(msg => msg.role === 'tool');
+        if (toolMsg) {
+          console.log('工具调用返回内容：', JSON.stringify(toolMsg.content, null, 2));
+        } else {
+          console.log('没有任何 tool 消息被调用');
+        }
       // 保存聊天记录（不存储pdfContent）
       await saveChat({
         id,
@@ -145,6 +189,7 @@ export async function POST(req: Request) {
         responseMessages: response.messages,
         }),
       });
+      if (mcpClient) await mcpClient.close();
     },
   });
 
@@ -154,6 +199,7 @@ export async function POST(req: Request) {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'x-chat-id': id, // 确保正确的 Content-Type
+      'x-tools': JSON.stringify(mcpTools),
     }
   });
 }

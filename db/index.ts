@@ -236,7 +236,7 @@ const generateAITitle = async (messages: Message[]) => {
 const generateChatTitle = async (messages: Message[]) => {
   if (!messages?.length) return "新对话";
   
-  // 直接生成标题，以后需要优化的地方QaQ
+  // 返回标题
   return await generateAITitle(messages);
 };
 

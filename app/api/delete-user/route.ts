@@ -14,14 +14,7 @@ export async function DELETE(req: NextRequest) {
     );
   }
 
-  // 权限校验（示例）
-  // const sessionUserId = getSessionUserId(); // 需实现会话管理
-  // if (parseInt(userId) !== sessionUserId) {
-  //   return NextResponse.json(
-  //     { message: '无权操作' }, 
-  //     { status: 403 }
-  //   );
-  // }
+
 
   try {
     await deleteUser(parseInt(userId));

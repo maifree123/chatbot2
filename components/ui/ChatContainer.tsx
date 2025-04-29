@@ -1,7 +1,7 @@
 "use client";
 
 import { createIdGenerator } from 'ai';
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 import React, { useEffect, useRef, useState} from 'react';
 import { Button } from './button';
 import { Message } from 'ai';
@@ -9,11 +9,11 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
-import { ArrowRight, Paperclip, BrainCog,  MessageSquareMore,  Globe , BookOpenText, Square, Copy, BookOpen} from 'lucide-react';
+import { ArrowRight, Paperclip, BrainCog,  MessageSquareMore,Sparkles, Image ,Globe , BookOpenText, Square, Copy, BookOpen} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion'; // 新增导入
+import { motion } from 'framer-motion';
 
 type Props = {
   id?: string;
@@ -21,7 +21,7 @@ type Props = {
   enableWebSearch?: string;// 联网开关
 };
 
-
+type ChatModel = 'deepseek-reasoner' | 'deepseek-chat' | 'gpt-4o-mini';
 
 
 const ChatContainer = ({ id, initialMessages }: Props) => {
@@ -39,12 +39,24 @@ const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 const [enableWebSearch, setEnableWebSearch] = useState(false); // 默认关闭联网
 //RAG
 const [enableRAG,setEnableRAG] = useState(false);
+  //控制 MCP 功能的开关（关了）
+  const [enableMCP, setEnableMCP] = useState(false);
 //动画按钮
 const MotionButton = motion(Button);
 const [isNavigating, setIsNavigating] = useState(false);
 const skipAnimation = new URLSearchParams(window.location.search).has('noAnimation');
 //跳转逻辑
 const [newChatId, setNewChatId] = useState<string | null>(null);
+//图片展示
+const [imageFiles, setImageFiles] = useState<File[]>([]); 
+const imageInputRef = useRef<HTMLInputElement>(null);
+
+const [imageUrls, setImageUrls] = useState<string[]>([]);
+const [showImagePreview, setShowImagePreview] = useState(false);
+const [currentPreviewUrl, setCurrentPreviewUrl] = useState<string | null>(null);
+//上传图片限制和ref存储
+const allImagesRef = useRef<File[]>([]);
+const MAX_IMAGES = 5; // 最多 5 张图片
 //文件提交
 const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
@@ -106,9 +118,48 @@ useEffect(() => {
 }, [pdfUrl]);
 
 
+const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = e.target.files;
+  if (!files) return;
 
+  // 转换为数组并检查数量
+  const newFiles = Array.from(files);
+  if (imageFiles.length + newFiles.length > MAX_IMAGES) {
+    toast.error("最多上传 5 张图片");
+    return;
+  }
+
+  // 合并文件并更新状态
+  setImageFiles(prev => [...prev, ...newFiles]); // 保留所有历史文件
+
+  // 生成新图片的预览 URL
+  const newUrls = newFiles.map(file => URL.createObjectURL(file));
+  setImageUrls(prev => [...prev, ...newUrls]);
+};
+
+// 清理内存
+useEffect(() => {
+  return () => {
+    imageUrls.forEach(URL.revokeObjectURL);
+  };
+}, []);
+
+// 删除单张图片
+const removeImage = (index: number) => {
+  setImageUrls(prev => {
+    const newUrls = [...prev];
+    URL.revokeObjectURL(newUrls.splice(index, 1)[0]); // 释放被删图片内存
+    return newUrls;
+  });
+
+  setImageFiles(prev => {
+    const newFiles = [...prev];
+    newFiles.splice(index, 1);
+    return newFiles;
+  });
+};
   // 在组件内部添加状态
-  const [selectedModel, setSelectedModel] = useState<'deepseek-reasoner' | 'deepseek-chat'>('deepseek-chat');
+  const [selectedModel, setSelectedModel] = useState<ChatModel>('deepseek-chat');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { messages, input, handleInputChange, handleSubmit, isLoading, stop,  error, reload  } = useChat({
@@ -116,7 +167,7 @@ useEffect(() => {
     initialMessages,
     api: '/api/chat',
     sendExtraMessageFields: true,
-    body: { model: selectedModel, pdfContent , enableWebSearch, enableRAG },
+    body: { model: selectedModel, pdfContent , enableWebSearch, enableRAG, enableMCP },
     fetch: (url, options) => {
       const userId = localStorage.getItem('user_id') // 直接从本地存储获取
       // 安全处理 options 可能为 undefined 的情况
@@ -227,8 +278,21 @@ useEffect(() => {
     navigator.clipboard.writeText(text);
     toast.success('已复制到剪贴板');
   };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // 将 File[] 转换为 FileList
+    const dt = new DataTransfer();
+    imageFiles.forEach(file => dt.items.add(file));
+    // 调用 useChat 提供的 handleSubmit，并传入 experimental_attachments
+    handleSubmit(e, {
+      experimental_attachments: dt.files,
+    });
+    // 根据需求清空本地图片状态
+    setImageFiles([]);
+    setImageUrls([]);
+  };
   return (
-    
     <div className="relative h-full w-full bg-background">
       {/* 聊天消息区域：绝对定位，并在底部预留足够空间给输入区域 */}
       <div className="absolute inset-0 overflow-auto p-4 pb-[12rem]">
@@ -238,17 +302,29 @@ useEffect(() => {
             if (message.role === 'user') {
               return (
                 <div key={message.id} className="flex justify-end">
-                  <div className="max-w-[85%] rounded-full p-2 shadow-sm bg-blue-100 dark:bg-blue-900/50 backdrop-blur-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <div className="max-w-[85%] rounded-lg p-2 shadow-sm bg-blue-100 dark:bg-blue-900/50 backdrop-blur-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       rehypePlugins={[rehypeHighlight]}
                       className="Inter dark:prose-invert prose-lg"
                     >
                       {message.content}
-                    </ReactMarkdown>
+                      </ReactMarkdown>
+                    {/* 图片预览*/}
+                        {message.experimental_attachments
+                          ?.filter(att => att.contentType?.startsWith('image/'))
+                          .map((att, idx) => (
+                            <img
+                              key={`${message.id}-img-${idx}`}
+                              src={att.url}
+                              alt={att.name || `img-${idx}`}
+                              className="rounded-md mt-2 max-h-48"
+                            />
+                          ))
+                        }
+                        </div>
                   </div>
-                </div>
-              );
+                  );
             } else {
               return (
                 <div key={message.id} className="flex justify-start gap-3">
@@ -350,7 +426,7 @@ useEffect(() => {
             ? 'bottom-0'
             : 'top-1/2 transform -translate-y-1/2'
         }`}
-        onSubmit={handleSubmit}
+        onSubmit={handleFormSubmit}
       >
         <div className="w-full max-w-[85%] md:max-w-2xl lg:max-w-2xl">
           {/* 新增提示语 */}
@@ -411,11 +487,63 @@ useEffect(() => {
               </Button>
             </div>
           )}
+         {/* 图片加载标识 */}
+        {imageUrls.length > 0 && (
+          <div className="mb-2 flex items-center gap-2 animate-fade-in">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowImagePreview(true)}
+            >
+              🖼️ 已加载 {imageUrls.length} 张图片（点击预览）
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-destructive"
+              onClick={() => {
+                // 清除所有图片
+                imageUrls.forEach(URL.revokeObjectURL);
+                setImageUrls([]);
+                setImageFiles([]);
+              }}
+            >
+              ×
+            </Button>
+          </div>
+        )}
 
+        {/* 图片预览模态框 */}
+        {showImagePreview && (
+  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="bg-background rounded-xl max-w-4xl max-h-[90vh] w-full overflow-auto p-4">
+      <div className="flex justify-end mb-2">
+        <Button
+          variant="ghost"
+          onClick={() => setShowImagePreview(false)}
+          className="h-8 w-8 p-0"
+        >
+          ×
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {imageUrls.map((url, index) => (
+          <div key={`${url}-${index}`} className="relative group">
+            <img
+              src={url}
+              className="w-full h-auto rounded-lg border shadow-sm"
+              alt={`上传的图片 ${index + 1}`}
+            />
+
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
           {/* PDF 预览模态框 */}
-          
           {showPdfPreview && pdfUrl && (
-            
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
               <div className="bg-background rounded-xl max-w-4xl max-h-[90vh] w-full flex flex-col">
                 <div className="flex justify-between items-center p-4 border-b">
@@ -438,6 +566,7 @@ useEffect(() => {
               </div>
             </div>
           )}
+        
 
           {/* 输入框 */}
           <motion.div
@@ -489,6 +618,19 @@ useEffect(() => {
                 </MotionButton>
                 {/* 模型切换按钮 */}
                 <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+                <MotionButton
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    type="button"
+                    variant={selectedModel === 'gpt-4o-mini' ? 'default' : 'ghost'}
+                    className={cn(
+                      'h-7 px-2 rounded-md text-sm tooltip hover:bg-primary hover:text-primary-foreground',
+                      selectedModel === 'gpt-4o-mini' && 'bg-primary text-primary-foreground'
+                    )}
+                    onClick={() => setSelectedModel('gpt-4o-mini')}
+                  >
+                    <Sparkles size={16} strokeWidth={2} /> {/* 需要引入图标 */}
+                    <span className="tooltip-text">多模态模式</span>
+                  </MotionButton>
                 <MotionButton
                     whileHover={{ y: -5 , scale: 1.02 }}
                     type="button"
@@ -563,6 +705,46 @@ useEffect(() => {
                   <BookOpenText size={16} strokeWidth={2} className={cn("transition-all", enableRAG ? "animate-pulse text-primary-foreground" : "text-muted-foreground")} />
                   <span className="tooltip-text">知识库</span>
                   </MotionButton>
+                                     {/* 新增：开启或关闭MCP功能的按钮 */}
+              <MotionButton
+                whileHover={{ y: -5, scale: 1.02 }}
+                type="button"
+                variant={enableMCP ? "default" : "ghost"}
+                className={cn(
+                  "ml-2 h-7 w-20 rounded-lg flex items-center justify-center tooltip",
+                  enableMCP 
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+                onClick={() => setEnableMCP(!enableMCP)}
+                aria-label={enableMCP ? "关闭MCP功能" : "启用MCP功能"}
+              >
+                <BookOpen 
+                  size={16}
+                  strokeWidth={2.2}
+                  className={cn("transition-all", enableMCP ? "animate-pulse text-primary-foreground" : "text-muted-foreground")}
+                />
+                <span className="text-xs">网页分析</span>
+                <span className="tooltip-text">MCP</span>
+              </MotionButton>
+              <MotionButton
+                whileHover={{ y: -5, scale: 1.02 }}
+                type="button"
+                variant="ghost"
+                className="h-7 px-2 rounded-md text-sm tooltip hover:bg-primary hover:text-primary-foreground"
+                onClick={() => imageInputRef.current?.click()}
+              >
+                <Image size={20} />
+                <span className="tooltip-text">上传图片</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  ref={imageInputRef}
+                  onChange={handleImageUpload}
+                />
+              </MotionButton>
               </div>
 
               <div className="relative h-7 w-7">

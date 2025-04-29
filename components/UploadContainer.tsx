@@ -268,7 +268,7 @@ const UploadContainer = () => {
             ) : (
               Object.entries(groupChats(chats || [])).map(([groupName, groupChats]) => (
                 <div key={groupName}>
-                  <div className="text-xs text-muted-foreground font-medium mb-2 mt-4 first:mt-0">
+                  <div className="text-xs text-muted-foreground font-medium mb-2 mt-4 first:mt-0 hidden">
                     {groupName}
                   </div>
                   {groupChats.map((chat: any) => {
@@ -507,7 +507,7 @@ const UploadContainer = () => {
                       拖拽文件到这里或点击上传
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      支持 PDF, DOCX, TXT 等文档格式
+                      支持 PDF 文档格式
                     </p>
                     <Button 
                       size="sm" 

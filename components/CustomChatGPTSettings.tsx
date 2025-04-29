@@ -1,23 +1,22 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button"; // 确保使用统一按钮组件
+import { Button } from "@/components/ui/button"; 
 const CustomChatGPTSettings = ({ userId }: { userId: number }) => {
   const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
   const [preferredName, setPreferredName] = useState('');
   const [preferences, setPreferences] = useState('');
 
-  // 增强版初始化逻辑
+  // 初始化
   useEffect(() => {
     const initSettings = async () => {
       try {
-        console.log('正在初始化设置，用户ID:', userId); // 调试日志
+        console.log('正在初始化设置，用户ID:', userId); 
         // 发送请求
         const response = await fetch('/api/custom-settings', {
         });
 
-        console.log('响应状态:', response.status); // 调试日志
-        
-        // 处理非200响应
+        console.log('响应状态:', response.status); 
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(`API错误: ${errorData.error || '未知错误'}`);
@@ -63,11 +62,11 @@ const CustomChatGPTSettings = ({ userId }: { userId: number }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-ID': String(userId), // 确保将 userId 作为请求头传递
+          'X-User-ID': String(userId), //  userId 请求头
         },
         body: JSON.stringify({
           preferredName,
-          traits: selectedTraits,  // 这里已经是 string[] 类型
+          traits: selectedTraits,  // string[] 类型
           preferences,
         }),
       });

@@ -39,10 +39,10 @@ const LoginPage = () => {
       // 清空表单并跳转
       setUsername('');
       setPassword('');
-      // 存储用户凭证
+      // 删除用户可能携带的凭证
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('user_id');
-      
+      // 存储用户凭证
       localStorage.setItem('user_id', data.userId);  // 存储用户ID
       localStorage.setItem('isLoggedIn', 'true'); // 添加全局登录状态标识
 

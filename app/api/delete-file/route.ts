@@ -36,7 +36,7 @@ export async function DELETE(req: Request) {
     // 初始化 Pinecone 客户端
     const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 
-    // 获取索引（根据你的实际情况替换索引名称）
+    // 获取索引）
     const index = pc.Index('chatbot');
 
     // 删除 Pinecone 中的 namespace
@@ -46,8 +46,7 @@ export async function DELETE(req: Request) {
       console.log(`Successfully deleted Pinecone namespace: ${fileKey}`);
     } catch (pineconeError) {
       console.error('Pinecone deletion failed:', pineconeError);
-      // 根据需求决定是否继续删除数据库记录
-      // 如果要保证原子性，可以在这里 return 错误
+
     }
 
     // 删除数据库记录

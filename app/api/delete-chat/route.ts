@@ -9,7 +9,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Chat ID is required' }, { status: 400 });
     }
 
-    await deleteChat(chatId); // 调用删除函数
+    await deleteChat(chatId); // 删除函数
     return NextResponse.json({ message: 'Chat deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error deleting chat:', error);

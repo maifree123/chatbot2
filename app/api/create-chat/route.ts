@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await req.json(); // 从请求体获取用户标识
+    const { userId } = await req.json(); // 请求体获取用户标识
     
     if (!userId) {
       return NextResponse.json(
