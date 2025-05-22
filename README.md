@@ -1,49 +1,69 @@
+# Project Overview
 
-# 基于AISDK的RAGChatbot(Next.js)
+This is a full-stack chat application built with Next.js and Supabase that supports user authentication, file uploads, and real-time conversations.
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.0.0-black.svg)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0.0-blue.svg)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3.0-06B6D4.svg)](https://tailwindcss.com/)
+# Features
 
-基于 Next.js 的全栈聊天应用，支持用户认证、文件上传和实时对话。
-体验地址：http://10.23.94.236:3000
-![image](https://github.com/user-attachments/assets/7a59b068-5196-4d93-b0b3-c60ba45230a9)
+*   User authentication (login, registration, password reset)
+*   Chat management (create, delete, rename conversations)
+*   PDF file uploads
+*   Real-time chat interface
+*   User-configurable settings
+*   Theme customization (dark/light mode)
 
-## ✨ 核心功能
+# Tech Stack
 
-- **用户系统**：登录/注册/密码重置
-- **聊天管理**：创建/删除/重命名对话
-- **文件处理**：上传 PDF
-- **数据库**：PostgreSQL（Supabase) + Drizzle ORM
+*   Next.js 14 (App Router)
+*   Tailwind CSS
+*   Next.js API Routes
+*   PostgreSQL (Supabase)
+*   Drizzle ORM
+*   TypeScript
 
+# Getting Started
 
-## 🛠 技术栈
+## Prerequisites
 
-- **前端**：Next.js 14 (App Router), Tailwind CSS
-- **后端**：Next.js API Routes
-- **数据库**：PostgreSQL + Drizzle ORM
-- **认证**：Header + Cookie
-- **工具链**：TypeScript
-## 🚀 快速开始
+*   Node.js v18+
+*   PostgreSQL
+*   Git
 
-### 环境要求
+## Installation
 
-- Node.js v18+
-- PostgreSQL 
-- Git
+1.  Clone the repository: `git clone https://github.com/maifree123/chatbot2`
+2.  Navigate to the project directory: `cd chatbot2`
+3.  Install dependencies: `npm install`
 
-### 安装步骤
+## Configuration
 
-1. 克隆仓库：
-   ```bash
-   git clonehttps://github.com/maifree123/chatbot2
-   cd chatbot2
-   
-### 2. 安装依赖
-1. 安装依赖：
-   ```bash
-   npm install  
+1.  Create a `.env.local` file by copying the `.env.example` file. If `.env.example` does not exist, create `.env.local` and add the following environment variables:
+    *   `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+    *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase project anon key
+    *   `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase project service role key (if needed for specific backend operations)
+    *   `DATABASE_URL`: Your PostgreSQL connection string (obtained from Supabase)
+    *   `OPENAI_API_KEY`: Your OpenAI API key (if using OpenAI for any features)
+2.  Update the environment variables in `.env.local` with your actual credentials and settings.
 
-###  3. 配置环境变量
-```bash
-cd .env
+## Running the application
+
+1.  Run the development server: `npm run dev`
+2.  Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+# Usage
+
+Register or log in to your account. Create new chats, send messages, and upload PDF files. Manage your chat settings and user profile.
+
+# Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1.  Fork the repository.
+2.  Create a new branch (`git checkout -b feature/your-feature-name`).
+3.  Make your changes.
+4.  Commit your changes (`git commit -m 'Add some feature'`).
+5.  Push to the branch (`git push origin feature/your-feature-name`).
+6.  Open a Pull Request.
+
+# License
+
+This project is licensed under the MIT License. See the LICENSE file for details. (LICENSE file to be created)
