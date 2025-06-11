@@ -5,7 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3.0-06B6D4.svg)](https://tailwindcss.com/)
 
 基于 Next.js 的全栈聊天应用，支持用户认证、文件上传和实时对话。
-![Image](https://github.com/user-attachments/assets/ed333b37-daf8-4546-aa99-e7858dd45f60)
+![Image](https://github.com/user-attachments/assets/4687f550-92d7-498e-ae89-fc1c40014823)
 
 
 ## ✨ 核心功能
